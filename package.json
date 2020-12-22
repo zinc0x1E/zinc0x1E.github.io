@@ -1,0 +1,48 @@
+{
+  "name": "hexo-site",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "hexo generate",
+    "clean": "hexo clean",
+    "deploy": "hexo deploy",
+    "server": "hexo server"
+  },
+  "hexo": {
+    "version": "5.3.0"
+  },
+  "dependencies": {
+    "@iktakahiro/markdown-it-katex": "^4.0.1",
+    "hexo": "^5.2.0",
+    "hexo-deployer-git": "^2.1.0",
+    "hexo-fs": "^3.1.0",
+    "hexo-generator-archive": "^1.0.0",
+    "hexo-generator-category": "^1.0.0",
+    "hexo-generator-feed": "^2.2.0",
+    "hexo-generator-index-pin-top": "^0.2.2",
+    "hexo-generator-json-content": "^4.2.3",
+    "hexo-generator-search": "^2.4.0",
+    "hexo-generator-tag": "^1.0.0",
+    "hexo-lazyload-image": "^1.0.9",
+    "hexo-renderer-ejs": "^1.0.0",
+    "hexo-renderer-markdown-it": "^5.0.0",
+    "hexo-server": "^1.0.0",
+    "hexo-util": "^2.1.0",
+    "hexo-wordcount": "^6.0.1",
+    "markdown-it-abbr": "^1.0.4",
+    "markdown-it-admonition": "^1.0.4",
+    "markdown-it-attrs": "^3.0.3",
+    "markdown-it-checkbox": "^1.1.0",
+    "markdown-it-collapsible": "^1.0.0",
+    "markdown-it-deflist": "^2.1.0",
+    "markdown-it-emoji": "^2.0.0",
+    "markdown-it-footnote": "^3.0.2",
+    "markdown-it-html5-embed": "^1.0.0",
+    "markdown-it-mark": "^3.0.0",
+    "markdown-it-multimd-table": "^4.0.3",
+    "markdown-it-sub": "^1.0.0",
+    "markdown-it-sup": "^1.0.0",
+    "markdown-it-table-of-contents": "^0.5.1",
+    "markdown-it-underline": "^1.0.1"
+  }
+}
