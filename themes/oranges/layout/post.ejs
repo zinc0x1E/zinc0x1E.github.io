@@ -49,7 +49,109 @@
     </div>
   <% } %>
 
-  <% if (!page.type) { %>
+  <% if (page.type === "notes-list") { %>
+  <!-- 笔记页 url形式：https://yoursite/notes/ -->
+  <div class="container archives">
+    <div class="post-list">
+      <%
+        var last = null;
+        var now = null;
+      %>
+      <%
+        site.posts.filter(post => post.type === "note").sort('date', -1).each(function(item, index) {
+      %>
+        <%
+          if (index === 0) {
+            last = item.date.year();
+        %>
+          <!-- 第一篇文章的发布年份呈现 -->
+          <div class="content-title">
+            <h2>
+              <span><%- last %></span>
+            </h2>
+          </div>
+        <%
+          }
+          now = item.date.year();
+          if (now !== last) {
+            last = now;
+        %>
+          <!-- 后续文章的发布年份呈现 -->
+          <div class="content-title">
+            <h2>
+              <span><%- now %></span>
+            </h2>
+          </div>
+        <%
+          }
+        %>
+        <div class="post-item" title="<%- item.title %>">
+          <div class="time-m-d"><%- item.date.format("MM-DD") %></div>
+          <div class="title">
+            <a href="<%- url_for(item.path) %>">
+              <span><%- item.title %></span>
+            </a>
+          </div>
+        </div>
+      <%
+        });
+      %>
+    </div>
+  </div>
+  <% } %>
+
+  <% if (page.type === "posts-list") { %>
+  <!-- 笔记页 url形式：https://yoursite/notes/ -->
+  <div class="container archives">
+    <div class="post-list">
+      <%
+        var last = null;
+        var now = null;
+      %>
+      <%
+        site.posts.filter(post => post.type === "post").sort('date', -1).each(function(item, index) {
+      %>
+        <%
+          if (index === 0) {
+            last = item.date.year();
+        %>
+          <!-- 第一篇文章的发布年份呈现 -->
+          <div class="content-title">
+            <h2>
+              <span><%- last %></span>
+            </h2>
+          </div>
+        <%
+          }
+          now = item.date.year();
+          if (now !== last) {
+            last = now;
+        %>
+          <!-- 后续文章的发布年份呈现 -->
+          <div class="content-title">
+            <h2>
+              <span><%- now %></span>
+            </h2>
+          </div>
+        <%
+          }
+        %>
+        <div class="post-item" title="<%- item.title %>">
+          <div class="time-m-d"><%- item.date.format("MM-DD") %></div>
+          <div class="title">
+            <a href="<%- url_for(item.path) %>">
+              <span><%- item.title %></span>
+            </a>
+          </div>
+        </div>
+      <%
+        });
+      %>
+    </div>
+  </div>
+  <% } %>
+
+  <% if (page.type === "note" || page.type === "post") { %>
   <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
   <div class="container post-details" id="post-details">
     <div class="post-content">

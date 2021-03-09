@@ -82,6 +82,16 @@ navbar:
     path: /archives/
     key: archives
   -
+    name: Posts
+    enable: true
+    path: "/posts-list/"
+    key: "posts-list"
+  -
+    name: Notes
+    enable: true
+    path: "/notes-list/"
+    key: "notes-list"
+  -
     name: Categories
     enable: true
     path: /categories/

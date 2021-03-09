@@ -2,6 +2,9 @@
 title:  "Method Chaining Pros & Cons"
 date:   2021-02-11 10:15:02 +0800
 categories: SE
+type: note
+publish: true
+archive: false
 tags:
   - Design Pattern
   - OOP

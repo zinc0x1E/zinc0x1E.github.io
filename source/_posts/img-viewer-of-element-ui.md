@@ -2,6 +2,9 @@
 title:  "element-ui 的 image-viewer 简单分析"
 date:   2019-12-28 12:08:23 +0800
 categories: frontend
+type: post
+publish: true
+archive: false
 tags:
   - vue.js
   - element

@@ -10,7 +10,7 @@
       var now = null;
     %>
     <%
-      site.posts.sort('date', -1).each(function(item, index) {
+      site.posts.filter(post => post.archive === true).sort('date', -1).each(function(item, index) {
     %>
       <%
         if (index === 0) {
