@@ -4,7 +4,7 @@ date:   2019-12-28 12:08:23 +0800
 categories: frontend
 type: post
 publish: true
-archive: false
+archive: true
 tags:
   - vue.js
   - element
