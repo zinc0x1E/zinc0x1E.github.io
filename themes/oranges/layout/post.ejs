@@ -58,7 +58,7 @@
         var now = null;
       %>
       <%
-        site.posts.filter(post => post.type === "note").sort('date', -1).each(function(item, index) {
+        site.posts.filter(post => post.publish === true).filter(post => post.type === "note").sort('date', -1).each(function(item, index) {
       %>
         <%
           if (index === 0) {
@@ -109,7 +109,7 @@
         var now = null;
       %>
       <%
-        site.posts.filter(post => post.type === "post").sort('date', -1).each(function(item, index) {
+        site.posts.filter(post => post.publish === true).filter(post => post.type === "post").sort('date', -1).each(function(item, index) {
       %>
         <%
           if (index === 0) {

@@ -1,7 +1,7 @@
 <div class="container index">
   <div class="post-list">
     <!-- 遍历渲染文章 -->
-    <% page.posts.filter(post => post.archive === false).filter(post => post.layout === 'post').forEach(function(item) { %>
+    <% page.posts.filter(post => post.publish === true).filter(post => post.archive === false).filter(post => post.layout === 'post').forEach(function(item) { %>
       <div class="post-item" title="<%- item.title %>">
         <div class="time-m-d"><%- item.date.format("YYYY-MM-DD") %></div>
         <div class="title">
