@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Zinc0x1E&#39;s Blog</title>
+  <icon>https://zinc0x1e.github.io/icon.png</icon>
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://zinc0x1e.github.io/"/>
+  <updated>2021-03-13T08:32:27.324Z</updated>
+  <id>https://zinc0x1e.github.io/</id>
+  
+  <author>
+    <name>Zinc0x1E</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Redis 数据类型总结 - Intro</title>
+    <link href="https://zinc0x1e.github.io/2021/03/09/summary-of-redis-data-types-01/"/>
+    <id>https://zinc0x1e.github.io/2021/03/09/summary-of-redis-data-types-01/</id>
+    <published>2021-03-09T10:10:02.000Z</published>
+    <updated>2021-03-13T08:32:27.324Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1&gt;Redis 数据类型总结 - Intro&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本篇笔记主要针对《Redis 设计与实现》第八章，亦参考了包括其他章节和 Redis
+        
+      
+    
+    </summary>
+    
+    
+      <category term="database" scheme="https://zinc0x1E.github.io/categories/database/"/>
+    
+    
+      <category term="Redis" scheme="https://zinc0x1E.github.io/tags/Redis/"/>
+    
+      <category term="源码解析" scheme="https://zinc0x1E.github.io/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>字符串匹配算法笔记</title>
+    <link href="https://zinc0x1e.github.io/2021/03/09/note-of-string-searching-algo/"/>
+    <id>https://zinc0x1e.github.io/2021/03/09/note-of-string-searching-algo/</id>
+    <published>2021-03-09T10:10:02.000Z</published>
+    <updated>2021-03-13T08:32:27.324Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1&gt;字符串匹配算法总结&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本文为 CLRS 3rd ed. 第 32 章内容的总结概括，同时也总结概括了一些其他优秀的 String-matching
+        
+      
+    
+    </summary>
+    
+    
+      <category term="algorithm" scheme="https://zinc0x1E.github.io/categories/algorithm/"/>
+    
+    
+      <category term="字符串" scheme="https://zinc0x1E.github.io/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Method Chaining Pros &amp; Cons</title>
+    <link href="https://zinc0x1e.github.io/2021/02/11/method-chaining-pros-and-cons/"/>
+    <id>https://zinc0x1e.github.io/2021/02/11/method-chaining-pros-and-cons/</id>
+    <published>2021-02-11T02:15:02.000Z</published>
+    <updated>2021-03-13T08:32:27.323Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1&gt;Method Chaining – Pros &amp;amp; Cons&lt;/h1&gt;
+&lt;h2 id=&quot;什么是-Method-Chaining&quot;&gt;什么是 Method Chaining&lt;/h2&gt;
+&lt;p&gt;Method chaining（方法链，是一种 API
+        
+      
+    
+    </summary>
+    
+    
+      <category term="SE" scheme="https://zinc0x1E.github.io/categories/SE/"/>
+    
+    
+      <category term="Design Pattern" scheme="https://zinc0x1E.github.io/tags/Design-Pattern/"/>
+    
+      <category term="OOP" scheme="https://zinc0x1E.github.io/tags/OOP/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>element-ui 的 image-viewer 简单分析</title>
+    <link href="https://zinc0x1e.github.io/2019/12/28/img-viewer-of-element-ui/"/>
+    <id>https://zinc0x1e.github.io/2019/12/28/img-viewer-of-element-ui/</id>
+    <published>2019-12-28T04:08:23.000Z</published>
+    <updated>2021-03-13T08:32:27.323Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1&gt;element 组件 image-viewer 的简单分析&lt;/h1&gt;
+&lt;p&gt;组件源代码详见&lt;a
+        
+      
+    
+    </summary>
+    
+    
+      <category term="frontend" scheme="https://zinc0x1E.github.io/categories/frontend/"/>
+    
+    
+      <category term="vue.js" scheme="https://zinc0x1E.github.io/tags/vue-js/"/>
+    
+      <category term="element" scheme="https://zinc0x1E.github.io/tags/element/"/>
+    
+  </entry>
+  
+</feed>

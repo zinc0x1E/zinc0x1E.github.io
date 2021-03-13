@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="author" content="zchengsite, 1451426471@qq.com" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  
+  <title>Redis 数据类型总结 - Intro   | Zinc0x1E&#39;s Blog</title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/katex.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="Zinc0x1E's Blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">zinc0x1E</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/posts-list/">
+          <a href="/posts-list/">Posts</a>
+        </li>
+      
+        <li class="nav-item" data-path="/notes-list/">
+          <a href="/notes-list/">Notes</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">Redis 数据类型总结 - Intro</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="更新时间"></i>
+          2021-03-09
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="分类"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/database/" title="database">
+                    <b>#</b> database
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="标签"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/Redis/" title="Redis">
+                    <b>#</b> Redis
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="源码解析">
+                    <b>#</b> 源码解析
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h1>Redis 数据类型总结 - Intro</h1>
+<blockquote>
+<p>本篇笔记主要针对《Redis 设计与实现》第八章，亦参考了包括其他章节和 Redis 官方文档在内的一些其他资料，完整参考资料详见文末“参考资料”部分。</p>
+</blockquote>
+<blockquote>
+<p><strong>Prerequisite</strong>:</p>
+<ol>
+<li>Redis 使用 C 语言实现</li>
+<li></li>
+</ol>
+</blockquote>
+<blockquote>
+<p>本文基于 Redis 6.2 进行分析，会与《Redis 设计与分析》第二版略有偏差。</p>
+</blockquote>
+<h2 id="Redis-类型与编码">Redis 类型与编码</h2>
+<ul>
+<li>Redis 使用对象存储 Key 和 Value</li>
+<li>每当创建 KV 对时，Redis 会至少创建两个对象，其中一个键对象，另一个是值对象</li>
+<li>Redis 中的对象由 <code>redisObject</code> 结构体表示</li>
+<li>对应源码位于 <code>server.h</code></li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> type:<span class="number">4</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> encoding:<span class="number">4</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> lru:LRU_BITS; <span class="comment">/* LRU time (relative to global lru_clock) or</span></span><br><span class="line"><span class="comment">                            * LFU data (least significant 8 bits frequency</span></span><br><span class="line"><span class="comment">                            * and most significant 16 bits access time). */</span></span><br><span class="line">    <span class="keyword">int</span> refcount;</span><br><span class="line">    <span class="keyword">void</span> *ptr; <span class="comment">// 指向底层数据结构的指针</span></span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
+<h3 id="类型-（对应-robj-type-字段）">类型 （对应 <code>robj.type</code> 字段）</h3>
+<ul>
+<li>Redis 中现有 7 种类型
+<ul>
+<li><code>string</code></li>
+<li><code>list</code></li>
+<li><code>set</code></li>
+<li><code>zset</code>
+<ul>
+<li>Sorted set</li>
+</ul>
+</li>
+<li><code>hash</code></li>
+<li><code>module</code>
+<ul>
+<li>一种内部类型，type 为 module 的对象由 Redis 模块直接管理</li>
+<li>不能作为值对象类型</li>
+<li>后文不具体展开讨论此类型</li>
+</ul>
+</li>
+<li><code>stream</code>
+<ul>
+<li>不能作为值对象类型</li>
+<li>后文不具体展开讨论此类型</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Redis 的键对象总是一个 <code>string</code> 类对象</li>
+<li>当称呼一个键是“xx 键”时，意为这个键所对应的值是 xx 类型
+<ul>
+<li>e.g. “列表键” 指这个键所对应的值是列表类型</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* The actual Redis Object */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_STRING 0    <span class="comment">/* String object. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_LIST 1      <span class="comment">/* List object. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_SET 2       <span class="comment">/* Set object. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_ZSET 3      <span class="comment">/* Sorted set object. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_HASH 4      <span class="comment">/* Hash object. */</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* The &quot;module&quot; object type is a special one that signals that the object</span></span><br><span class="line"><span class="comment"> * is one directly managed by a Redis module. In this case the value points</span></span><br><span class="line"><span class="comment"> * to a moduleValue struct, which contains the object value (which is only</span></span><br><span class="line"><span class="comment"> * handled by the module itself) and the RedisModuleType struct which lists</span></span><br><span class="line"><span class="comment"> * function pointers in order to serialize, deserialize, AOF-rewrite and</span></span><br><span class="line"><span class="comment"> * free the object.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Inside the RDB file, module types are encoded as OBJ_MODULE followed</span></span><br><span class="line"><span class="comment"> * by a 64 bit module type ID, which has a 54 bits module-specific signature</span></span><br><span class="line"><span class="comment"> * in order to dispatch the loading to the right module, plus a 10 bits</span></span><br><span class="line"><span class="comment"> * encoding version. */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_MODULE 5    <span class="comment">/* Module object. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_STREAM 6    <span class="comment">/* Stream object. */</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="编码（对应-robj-encoding-字段）">编码（对应 <code>robj.encoding</code> 字段）</h3>
+<ul>
+<li><code>robj.ptr</code> 指向作为数据内容</li>
+<li><code>robj.encoding</code> 为数据内容的存储结构类型</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Objects encoding. Some kind of objects like Strings and Hashes can be</span></span><br><span class="line"><span class="comment"> * internally represented in multiple ways. The &#x27;encoding&#x27; field of the object</span></span><br><span class="line"><span class="comment"> * is set to one of this fields for this object. */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_ENCODING_RAW 0     <span class="comment">/* Raw representation */</span> <span class="comment">/* 对应 SDS，底层是 char[]，可以视作是 raw bytes */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_ENCODING_INT 1     <span class="comment">/* Encoded as integer */</span> <span class="comment">/* 底层是 long 型整数 */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_ENCODING_HT 2      <span class="comment">/* Encoded as hash table */</span> <span class="comment">/* 《Redis 设计与实现》中称作“字典” */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_ENCODING_ZIPMAP 3  <span class="comment">/* Encoded as zipmap */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_ENCODING_LINKEDLIST 4 <span class="comment">/* No longer used: old list encoding. */</span> <span class="comment">/* 双端链表 */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_ENCODING_ZIPLIST 5 <span class="comment">/* Encoded as ziplist */</span> <span class="comment">/* 压缩列表 */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_ENCODING_INTSET 6  <span class="comment">/* Encoded as intset */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_ENCODING_SKIPLIST 7  <span class="comment">/* Encoded as skiplist */</span> <span class="comment">/* 《Redis 设计与实现》中称作“跳跃表” */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_ENCODING_EMBSTR 8  <span class="comment">/* Embedded sds string encoding */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_ENCODING_QUICKLIST 9 <span class="comment">/* Encoded as linked list of ziplists */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OBJ_ENCODING_STREAM 10 <span class="comment">/* Encoded as a radix tree of listpacks */</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="参考资料">参考资料</h2>
+<ol>
+<li>黄健宏，《Redis 设计与实现》第二版第八章</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/redis/redis/blob/6.2/src">https://github.com/redis/redis/blob/6.2/src</a></li>
+</ol>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/03/09/note-of-string-searching-algo/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>上一页</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="更新时间"></i>
+              2021-03-09
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="分类"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/database/" title="database">
+                        <b>#</b> database
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="标签"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/Redis/" title="Redis">
+                        <b>#</b> Redis
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="源码解析">
+                        <b>#</b> 源码解析
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div class="post-catalog" id="catalog">
+    <div class="title">目录</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">Redis 数据类型总结 - Intro</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis-%E7%B1%BB%E5%9E%8B%E4%B8%8E%E7%BC%96%E7%A0%81"><span class="toc-text">Redis 类型与编码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B1%BB%E5%9E%8B-%EF%BC%88%E5%AF%B9%E5%BA%94-robj-type-%E5%AD%97%E6%AE%B5%EF%BC%89"><span class="toc-text">类型 （对应 robj.type 字段）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E7%A0%81%EF%BC%88%E5%AF%B9%E5%BA%94-robj-encoding-%E5%AD%97%E6%AE%B5%EF%BC%89"><span class="toc-text">编码（对应 robj.encoding 字段）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-text">参考资料</span></a></li></ol></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+  </div>
+
+
+        <div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zinc0x1E">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="email" href="">
+            <i class="iconfont icon-envelope"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="rss" href="/atom.xml">
+            <i class="iconfont icon-rss"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    <div class="footer-more">
+      <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © Oranges 2020</a>
+    </div>
+  
+    <div class="footer-more">
+      <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+  <div class="search-icon" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+    </div>
+  </body>
+</html>

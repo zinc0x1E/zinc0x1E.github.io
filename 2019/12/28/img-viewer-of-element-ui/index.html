@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="author" content="zchengsite, 1451426471@qq.com" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  
+  <title>归档   | Zinc0x1E&#39;s Blog</title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/katex.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="Zinc0x1E's Blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">zinc0x1E</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/posts-list/">
+          <a href="/posts-list/">Posts</a>
+        </li>
+      
+        <li class="nav-item" data-path="/notes-list/">
+          <a href="/notes-list/">Notes</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">element-ui 的 image-viewer 简单分析</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="更新时间"></i>
+          2019-12-28
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="分类"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/frontend/" title="frontend">
+                    <b>#</b> frontend
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="标签"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/vue-js/" title="vue.js">
+                    <b>#</b> vue.js
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/element/" title="element">
+                    <b>#</b> element
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h1>element 组件 image-viewer 的简单分析</h1>
+<p>组件源代码详见<a target="_blank" rel="noopener" href="https://github.com/ElemeFE/element/blob/dev/packages/image/src/image-viewer.vue">此页面</a></p>
+<p>这个组件作为 <code>el-image</code> 的附属, 相关内容没有写在 element 的文档里. 翻阅这个组件的代码主要是由于在项目过程中发现了一个奇怪的 bug: 在点击作为缩略图的 <code>el-image</code> 组件试图打开完整图片的时候, <code>image-viewer</code> 并不能显示 <code>el-image</code> 图片本身.</p>
+<p>Element 作为一个成熟的组件库，自然拥有图片放大预览像个的组件。这个组件提供的基本功能有：</p>
+<ul>
+<li>渐入 / 渐出</li>
+<li>放大 / 缩小</li>
+<li>旋转</li>
+<li>图片查看模式切换</li>
+<li>切换图片</li>
+</ul>
+<h2 id="组件参数">组件参数</h2>
+<p>先看调用这个组件时的参数</p>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>类型</th>
+<th>默认值</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>url-list</code></td>
+<td><code>Array</code></td>
+<td><code>()=&gt;[]</code></td>
+<td>希望在预览时可以通过左右箭头切换的图片的url列表</td>
+</tr>
+<tr>
+<td><code>z-index</code></td>
+<td><code>Number</code></td>
+<td><code>2000</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>on-switch</code></td>
+<td><code>Function</code></td>
+<td><code>()=&gt;&#123;&#125;</code></td>
+<td>图片切换时调用的函数</td>
+</tr>
+<tr>
+<td><code>on-close</code></td>
+<td><code>Function</code></td>
+<td><code>()=&gt;&#123;&#125;</code></td>
+<td>关闭时调用的函数</td>
+</tr>
+<tr>
+<td><code>initial-index</code></td>
+<td><code>Number</code></td>
+<td><code>0</code></td>
+<td>点开预览时，第一张图片在url-list中对应的下标</td>
+</tr>
+</tbody>
+</table>
+<details>
+<summary><span class="details-marker">&nbsp;</span><code>props</code> 对象</summary><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">props: &#123;</span><br><span class="line">  urlList: &#123;</span><br><span class="line">    type: <span class="built_in">Array</span>,</span><br><span class="line">    <span class="keyword">default</span>: <span class="function">() =&gt;</span> []</span><br><span class="line">  &#125;,</span><br><span class="line">  zIndex: &#123;</span><br><span class="line">    type: <span class="built_in">Number</span>,</span><br><span class="line">    <span class="keyword">default</span>: <span class="number">2000</span></span><br><span class="line">  &#125;,</span><br><span class="line">  onSwitch: &#123;</span><br><span class="line">    type: <span class="built_in">Function</span>,</span><br><span class="line">    <span class="keyword">default</span>: <span class="function">() =&gt;</span> &#123;&#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  onClose: &#123;</span><br><span class="line">    type: <span class="built_in">Function</span>,</span><br><span class="line">    <span class="keyword">default</span>: <span class="function">() =&gt;</span> &#123;&#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  initialIndex: &#123;</span><br><span class="line">    type: <span class="built_in">Number</span>,</span><br><span class="line">    <span class="keyword">default</span>: <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+</details>
+<p>这个组件在el-image内调用时使用的参数是：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">image-viewer</span> <span class="attr">:z-index</span>=<span class="string">&quot;zIndex&quot;</span> <span class="attr">:initial-index</span>=<span class="string">&quot;imageIndex&quot;</span> <span class="attr">v-show</span>=<span class="string">&quot;showViewer&quot;</span> <span class="attr">:on-close</span>=<span class="string">&quot;closeViewer&quot;</span> <span class="attr">:url-list</span>=<span class="string">&quot;previewSrcList&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<p><code>previewSrcList</code>来自于调用<code>el-image</code>输入的参数。</p>
+<p><code>imageIndex</code>在这里是用这个函数算出来的：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">imageIndex</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.previewSrcList.indexOf(<span class="built_in">this</span>.src);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也就是说，如果调用<code>el-image</code>时输入的<code>previewSrcList</code>没有<code>el-image</code>本身对应的图片，<code>image-viewer</code>被打开时是不会有任何图片被展示的。这点就很致命了，尤其是<strong>缩略图</strong>打开后预览<strong>高清图</strong>的情况。</p>
+<h2 id="图片相关的数据">图片相关的数据</h2>
+<p>当前图片的数据存放在<code>data</code>字段下的<code>transform</code>对象。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">transform: &#123;</span><br><span class="line">    scale: <span class="number">1</span>,</span><br><span class="line">    deg: <span class="number">0</span>,</span><br><span class="line">    offsetX: <span class="number">0</span>,</span><br><span class="line">    offsetY: <span class="number">0</span>,</span><br><span class="line">    enableTransition: <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="渐入渐出">渐入渐出</h2>
+<p>调用的是<code>viewer-fade</code>, <strong>不可定制</strong></p>
+<h2 id="放大缩小-旋转">放大缩小/旋转</h2>
+<p>通过<code>handleActions</code>函数调用相关方法。</p>
+<h3 id="放大缩小">放大缩小</h3>
+<p>代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 放大：</span></span><br><span class="line">transform.scale = <span class="built_in">parseFloat</span>((transform.scale + zoomRate).toFixed(<span class="number">3</span>));</span><br><span class="line"><span class="comment">// 缩小：</span></span><br><span class="line"><span class="keyword">if</span> (transform.scale &gt; <span class="number">0.2</span>) &#123;</span><br><span class="line">    transform.scale = <span class="built_in">parseFloat</span>((transform.scale - zoomRate).toFixed(<span class="number">3</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>直接编辑图片展示的大小这个属性。</p>
+<h3 id="旋转">旋转</h3>
+<p>同样也是直接编辑<code>transform</code>对象下<code>deg</code>属性</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 逆时针:</span></span><br><span class="line">	transform.deg += rotateDeg;</span><br><span class="line"><span class="comment">// 顺时针:</span></span><br><span class="line">	transform.deg -= rotateDeg;</span><br></pre></td></tr></table></figure>
+<h3 id="动画">动画</h3>
+<p>所有属性的更改都会涉及到这行代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">transition: enableTransition ? <span class="string">&#x27;transform .3s&#x27;</span> : <span class="string">&#x27;&#x27;</span>,</span><br></pre></td></tr></table></figure>
+<p>进而为属性的更改加上动画效果。</p>
+<h2 id="图片切换">图片切换</h2>
+<p>调用<code>prev()</code>和<code>next()</code>函数完成</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">prev</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">this</span>.isFirst &amp;&amp; !<span class="built_in">this</span>.infinite) <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">const</span> len = <span class="built_in">this</span>.urlList.length;</span><br><span class="line">    <span class="built_in">this</span>.index = (<span class="built_in">this</span>.index - <span class="number">1</span> + len) % len;</span><br><span class="line">&#125;,</span><br><span class="line"><span class="function"><span class="title">next</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">this</span>.isLast &amp;&amp; !<span class="built_in">this</span>.infinite) <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">const</span> len = <span class="built_in">this</span>.urlList.length;</span><br><span class="line">    <span class="built_in">this</span>.index = (<span class="built_in">this</span>.index + <span class="number">1</span>) % len;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>还蛮简单的，就不分析了。</p>
+<h2 id="图片模式切换">图片模式切换</h2>
+<p>一共定义了两个模式<code>CONTAIN</code>和<code>ORIGINAL</code></p>
+<p><code>CONTAIN</code>模式会将图片全屏，<code>ORIGINAL</code>模式会显示原图大小</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Mode = &#123;</span><br><span class="line">  CONTAIN: &#123;</span><br><span class="line">    name: <span class="string">&#x27;contain&#x27;</span>,</span><br><span class="line">    icon: <span class="string">&#x27;el-icon-full-screen&#x27;</span></span><br><span class="line">  &#125;,</span><br><span class="line">  ORIGINAL: &#123;</span><br><span class="line">    name: <span class="string">&#x27;original&#x27;</span>,</span><br><span class="line">    icon: <span class="string">&#x27;el-icon-c-scale-to-original&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>模式切换通过调用<code>toggleMode()</code>函数实现</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">toggleMode</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">this</span>.loading) <span class="keyword">return</span>;</span><br><span class="line">  <span class="keyword">const</span> modeNames = <span class="built_in">Object</span>.keys(Mode);</span><br><span class="line">  <span class="keyword">const</span> modeValues = <span class="built_in">Object</span>.values(Mode);</span><br><span class="line">  <span class="keyword">const</span> index = modeValues.indexOf(<span class="built_in">this</span>.mode);</span><br><span class="line">  <span class="keyword">const</span> nextIndex = (index + <span class="number">1</span>) % modeNames.length;</span><br><span class="line">  <span class="built_in">this</span>.mode = Mode[modeNames[nextIndex]];</span><br><span class="line">  <span class="built_in">this</span>.reset();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果要添加更多的模式，只需要在<code>Mode</code>对象下添加即可，不需要再修改其他的代码。</p>
+<h2 id="图片加载时的情形">图片加载时的情形</h2>
+<p>这个组件维护了一个变量：<code>loading</code>，来标志是否在加载。加载失败或加载中的情况直接调用了<code>img</code>下的<code>@load</code>和<code>@error</code>来处理。</p>
+<p>如果想要改变加载时展示的图片，最方便的做法是将<code>&lt;template&gt;</code>下的<code>&lt;img&gt;</code>换成<code>&lt;el-image&gt;</code>，再用<code>el-image</code>的相关插槽来改变</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="更新时间"></i>
+              2019-12-28
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="分类"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/frontend/" title="frontend">
+                        <b>#</b> frontend
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="标签"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/vue-js/" title="vue.js">
+                        <b>#</b> vue.js
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/element/" title="element">
+                        <b>#</b> element
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2021/02/11/method-chaining-pros-and-cons/" target="_self">
+                <span>下一页</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div class="post-catalog" id="catalog">
+    <div class="title">目录</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">element 组件 image-viewer 的简单分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%84%E4%BB%B6%E5%8F%82%E6%95%B0"><span class="toc-text">组件参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BE%E7%89%87%E7%9B%B8%E5%85%B3%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-text">图片相关的数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%90%E5%85%A5%E6%B8%90%E5%87%BA"><span class="toc-text">渐入渐出</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%BE%E5%A4%A7%E7%BC%A9%E5%B0%8F-%E6%97%8B%E8%BD%AC"><span class="toc-text">放大缩小&#x2F;旋转</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BE%E5%A4%A7%E7%BC%A9%E5%B0%8F"><span class="toc-text">放大缩小</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%8B%E8%BD%AC"><span class="toc-text">旋转</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A8%E7%94%BB"><span class="toc-text">动画</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BE%E7%89%87%E5%88%87%E6%8D%A2"><span class="toc-text">图片切换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BE%E7%89%87%E6%A8%A1%E5%BC%8F%E5%88%87%E6%8D%A2"><span class="toc-text">图片模式切换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E6%97%B6%E7%9A%84%E6%83%85%E5%BD%A2"><span class="toc-text">图片加载时的情形</span></a></li></ol></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+  </div>
+
+
+        <div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zinc0x1E">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="email" href="">
+            <i class="iconfont icon-envelope"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="rss" href="/atom.xml">
+            <i class="iconfont icon-rss"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    <div class="footer-more">
+      <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © Oranges 2020</a>
+    </div>
+  
+    <div class="footer-more">
+      <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+  <div class="search-icon" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+    </div>
+  </body>
+</html>
